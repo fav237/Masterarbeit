@@ -16,11 +16,27 @@ import carla #the sim library itself
 import time # to set a delay after each photo
 import cv2 #to work with images from cameras
 import numpy as np #in this example to change image representation - re-shaping
+import traceback
 
 
 # Connect to the client and retrieve the world object
-client = carla.Client('localhost', 2000)
-world = client.get_world()
+try:
+
+    client = carla.Client('localhost', 2000)
+    #world = client.load_world('Town01')
+    world = client.get_world()
+    weather = carla.WeatherParameters(
+        cloudiness = 0.0,
+        precipitation=0.0,
+        sun_altitude_angle=10.0,
+        sun_azimuth_angle=70.0,
+        precipitation_deposits=0.0,
+        wind_intensity=0.0,
+        wetness=0.0,
+    )
+    world.set_weather(weather)
+except Exception as e:
+    print(traceback.format_exc())
 
 for actor in world.get_actors().filter('*vehicle*'):
     actor.destroy()
@@ -35,8 +51,8 @@ spawn_points = world.get_map().get_spawn_points()
 start_point = spawn_points[0]
 
 # Set up the vehicle transform
-vehicle_loc = carla.Location(x=80, y=24.50, z=0.6)
-vehicle_rot = carla.Rotation(pitch=0.0, yaw=0.16, roll=0.0)
+vehicle_loc = carla.Location(x=334.75, y=10.0, z=0.3)
+vehicle_rot = carla.Rotation(pitch=0.0, yaw=90.0, roll=0.0)
 vehicle_trans = carla.Transform(vehicle_loc,vehicle_rot)
 
 # Filter for the Vehicle
@@ -45,8 +61,8 @@ vehicle_bp = blueprint_library.filter('*a2*')
 # Add Vehicle
 #vehicle = world.try_spawn_actor(vehicle_bp[0], start_point)
 vehicle = world.try_spawn_actor(vehicle_bp[0], vehicle_trans)
-
-print(f'waypoint location : {start_point}')
+time.sleep(1)
+print(f'waypoint location : {vehicle.get_transform()}')
 
 # send vehicle off
 #vehicle.set_autopilot(True)

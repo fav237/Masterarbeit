@@ -23,10 +23,10 @@ class ActorNetwork:
 
         keras_backend.set_session(tf_session)
 
-        self.model, self.model_image,self.model_input = self.generate_model()
+        self.model, self.model_image, self.model_input = self.generate_model()
         model_weights = self.model.trainable_weights
 
-        self.target_model, _ = self.generate_model()
+        self.target_model, _ , _= self.generate_model()
 
 
         # Generate tensors to hold the gradients for Policy Gradient update
@@ -85,6 +85,6 @@ class ActorNetwork:
         model_concat = concatenate([image_layer,state_layer])
         
         output_layer = Dense(self.action_size, activation="tanh")(model_concat)
-        model = Model(inputs=input_layer, outputs=output_layer)
+        model = Model(inputs=[image_input,state_input], outputs=output_layer)
 
         return model, image_input,state_input

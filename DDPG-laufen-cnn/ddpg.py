@@ -89,9 +89,9 @@ class DDPGAgent:
             else:
                 state = env.reset()
                 
-            states_input = np.array(state[-1:]).reshape(1, -1)
-            #image_in = np.expand_dims(np.array(state[0]),-1)/255 
-            states_image = np.array(state[0:-1])
+            states_input = np.array(state[1]).reshape(1, -1)
+            #states_image = np.expand_dims(np.array(state[0:-1]),-1)/255 
+            states_image = (np.array(state[0]))/255
             
             #print(f'state_ddpg: {state}')
             total_reward = 0.0
@@ -108,7 +108,7 @@ class DDPGAgent:
                 noise = np.zeros([1,self.action_dim])
 
                 # get action from actor
-                action = self.actor.model.predict(states_image,states_input)  # + ou()  # predict and add noise
+                action = self.actor.model.predict([states_image,states_input])  # + ou()  # predict and add noise
                 #print(f'action: {action}')
 
                 noise[0][0] =  max(epsilon, 0) * self.ou.function(action[0][0],  0.0 , 0.20, 0.05)
@@ -199,7 +199,7 @@ class DDPGAgent:
                 self.actor.model.save_weights(self.save_weights_path +  "data_actor.h5", overwrite=True)
                 self.critic.model.save_weights(self.save_weights_path +  "data_critic.h5", overwrite=True)
 
-            if (i > 10) and (total_reward > np.max(ep_rewards[:-1])):
+            if (i > 10) and (total_reward > 100):
                 self.actor.model.save_weights(self.save_weights_path + "data_best_reward_actor.h5", overwrite=True)
                 self.critic.model.save_weights(self.save_weights_path +  "data_best_reward_critic.h5", overwrite=True)
 
