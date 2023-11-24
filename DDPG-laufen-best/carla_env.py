@@ -36,10 +36,6 @@ from misc import _vec_decompose
 
 red = carla.Color(255, 0, 0)
 green = carla.Color(0, 255, 0)
-blue = carla.Color(47, 210, 231)
-cyan = carla.Color(0, 255, 255)
-yellow = carla.Color(255, 255, 0)
-orange = carla.Color(255, 162, 0)
 white = carla.Color(255, 255, 255)
 
 
@@ -99,11 +95,6 @@ class CarEnv:
         self.a2 = self.blueprint_library.filter("a2")[0]
         self.prev_d2goal = 10000
         self.target = 0
-        self.numero_tramo = 0
-        self.error_lateral = []
-        self.position_array = []
-        self.prev_next = 0
-        self.waypoints_txt = []
         self.data = {}
         self.pos_a = 0
         self.pos_b = 0
@@ -128,18 +119,15 @@ class CarEnv:
         self.actor_list = []
         self.collision_hist = []
         self.laneInv_hist = []
-        self.coeficientes = np.zeros((51-1, 8))
         self.pos_array_wp = 0
         self.waypoints_current_route = []
         self.dif_angle_routes = 0
-        #############################NUEVO
         self.total_dist = 1
         self.map = self.world.get_map()
         self.route_planner = GlobalRoutePlanner(self.map, 1)
         #############################
         
         self.spawn_points = self.map.get_spawn_points()
-        self.waypoints_current_route = []
 
         if self.train_mode == self.train[0]:
             self.pos_a = carla.Transform(carla.Location(x=334.75, y=10.5, z=0.0),carla.Rotation(pitch=0.0, yaw=89.9, roll=0.0))
@@ -410,18 +398,11 @@ class CarEnv:
             done = True
             self.summary['Steps'] += 1
         
-            dis_trav = self.total_dist - d2target
-
+            #dis_trav = self.total_dist - d2target
             #print(f"distance_travelled 1: {dis_trav} ")
             #print(f"distance_travelled acum: {acum} ")
-            if acum <= self.total_dist/100:
-                reward -= 20
-            elif (acum > self.total_dist/100) and (acum < self.total_dist/10):
-                reward -= 10
-            elif acum > self.total_dist/2 :
-                reward += 10
-            else:
-                reward += 20
+
+            reward -= 20
 
         img = cv2.putText(self.front_camera, 'Speed: '+str(int(speed))+' kmh', self.org, 
                            self.font, self.fontScale, (255,255,255), self.thickness, cv2.LINE_AA)
@@ -435,7 +416,6 @@ class CarEnv:
             cv2.imshow('Real', img)
             cv2.waitKey(1)
 
-        
 
         if done == True:
             self.distance_acum.append(acum)
@@ -455,8 +435,6 @@ class CarEnv:
         acceleration = self.vehicle.get_acceleration()
         dyaw_dt = self.vehicle.get_angular_velocity().z
         speed = 3.6 * math.sqrt(velocity.x ** 2 + velocity.y ** 2)
-        waypoints = self.waypoints_current_route
-        vehicle_vector = actual_position.get_forward_vector()
         #actual waypoint
         actual_waypoint = self.map.get_waypoint(location= self.vehicle.get_location())
         
