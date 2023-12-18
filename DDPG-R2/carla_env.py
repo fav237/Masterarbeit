@@ -60,8 +60,8 @@ class CarEnv(gym.Env):
     speed = 0
     line_time = 5
     line_widht = 0.1
-    cam_x = -5
-    cam_z = 3
+    cam_x = 1.4            #-5
+    cam_z = 1.3             #3
     cam_pitch = -40
     SHOW_CAM = True
     state_dim = 16
@@ -171,7 +171,13 @@ class CarEnv(gym.Env):
 
         self.draw_path( self.current_route, tl=self.line_time)
 
-        self.vehicle = self.world.spawn_actor(self.a2, self.transform)
+        self.vehicle = None
+        while self.vehicle is None:
+            try:
+                self.vehicle = self.world.spawn_actor(self.a2, self.transform)
+                time.sleep(0.01)
+            except:
+                pass
         
         # add the car tothe list of actor
         self.actor_list.append(self.vehicle)
